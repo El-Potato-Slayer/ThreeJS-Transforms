@@ -16,7 +16,7 @@ const geometry = new THREE.BoxGeometry(1, 1, 1)
 const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
 const mesh = new THREE.Mesh(geometry, material)
 
-mesh.position.x = 3
+// mesh.position.x = 3
 scene.add(mesh)
 
 
@@ -32,9 +32,9 @@ const sizes = {
  * Camera
  */
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-camera.position.z = 5
-camera.position.x = 1
-camera.position.y = 1
+camera.position.z = 3
+// camera.position.x = 1
+// camera.position.y = 1
 scene.add(camera)
 
 
@@ -51,4 +51,19 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
-renderer.render(scene, camera)
+// renderer.render(scene, camera)
+
+const clock = new THREE.Clock()
+
+const tick = () =>
+{
+    const elapsedTime = clock.getElapsedTime()
+    mesh.position.x = Math.sin(elapsedTime)
+    mesh.position.y = Math.cos(elapsedTime)
+    
+    renderer.render(scene, camera)
+
+    window.requestAnimationFrame(tick)
+}
+
+tick()
