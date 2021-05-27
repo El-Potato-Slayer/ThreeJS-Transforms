@@ -55,11 +55,26 @@ renderer.setSize(sizes.width, sizes.height)
 
 const clock = new THREE.Clock()
 
+const cursor = {
+  x: 0,
+  y: 0
+}
+
+window.addEventListener('mousemove', (e) => {
+  cursor.x = e.clientX / sizes.width - 0.5
+  cursor.y = -(e.clientY / sizes.height - 0.5)
+})
+
 const tick = () =>
 {
-    const elapsedTime = clock.getElapsedTime()
-    mesh.position.x = Math.sin(elapsedTime)
-    mesh.position.y = Math.cos(elapsedTime)
+    // const elapsedTime = clock.getElapsedTime()
+    // mesh.position.x = Math.sin(elapsedTime)
+    // mesh.position.y = Math.cos(elapsedTime)
+    camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3
+    camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3 
+    camera.position.y = cursor.y * Math.PI * 2
+    camera.lookAt(mesh.position)
+    // camera.rotation.x = cursor.x
     
     renderer.render(scene, camera)
 
