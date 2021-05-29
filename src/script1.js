@@ -21,12 +21,18 @@ const geometry = new THREE.BoxGeometry(1, 1, 1)
 const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
 const mesh = new THREE.Mesh(geometry, material)
 
-mesh.position.set(2, 2)
+// mesh.position.set(2,2)
+mesh.rotation.x = Math.PI * 0.25
+mesh.rotation.y = Math.PI * 0.25
+
 scene.add(mesh)
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, aspectRatio)
-camera.position.z = 5
+camera.position.set(0,0,5)
+
+// camera.lookAt(mesh.position)
+
 scene.add(camera)
 
 
@@ -39,5 +45,5 @@ renderer.render(scene, camera)
 
 
 // You can get the length of a vector:
-// console.log(mesh.position.length())
+console.log(mesh.position.length())
 // console.log(mesh.position.distanceTo(camera.position))
