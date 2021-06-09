@@ -1,84 +1,177 @@
 import "./style.css";
 import * as THREE from "three";
-import gsap from "gsap";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import * as dat from "dat.gui";
 
+/**
+ * Base
+ */
+// Debug
+const gui = new dat.GUI();
 
+// Canvas
 const canvas = document.querySelector("canvas.webgl");
-const scene = new THREE.Scene();
-const axesHelper = new THREE.AxesHelper(2);
-scene.add(axesHelper);
 
-// Sizes
+// Scene
+const scene = new THREE.Scene();
+
+const axesHelper = new THREE.AxesHelper(5);
+scene.add(axesHelper);
+/**
+ * Textures
+ */
+const textureLoader = new THREE.TextureLoader();
+
+/**
+ * House
+ */
+const house = new THREE.Group();
+scene.add(house);
+
+// walls
+
+const walls = new THREE.Mesh(
+  new THREE.BoxBufferGeometry(4, 2.5, 4),
+  new THREE.MeshStandardMaterial({ color: "#ac8e82" })
+);
+walls.position.y = 2.5 / 2;
+house.add(walls);
+
+// roof
+
+const roof = new THREE.Mesh(
+  new THREE.ConeBufferGeometry(3.5, 1, 4),
+  new THREE.MeshStandardMaterial({ color: "#b35f45" })
+);
+roof.position.y = 3;
+roof.rotation.y = Math.PI / 4;
+house.add(roof);
+
+// door
+
+const door = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(2, 2),
+  new THREE.MeshStandardMaterial({ color: "aa7b7b" })
+);
+door.position.z = 2.01
+door.position.y = 1
+
+house.add(door)
+
+// bushes
+const bushGeometry = new THREE.SphereBufferGeometry(1,16,16)
+const bushMaterial = new THREE.MeshStandardMaterial({color:'#89c854'})
+
+const bush1 = new THREE.Mesh(bushGeometry,bushMaterial)
+bush1.scale.set(0.5,0.5,0.5)
+bush1.position.set(0.8,0.2,2.2)
+
+const bush2 = new THREE.Mesh(bushGeometry,bushMaterial)
+bush2.scale.set(0.25,0.25,0.25)
+bush2.position.set(1.4,0.1,2.1)
+
+const bush3 = new THREE.Mesh(bushGeometry,bushMaterial)
+bush3.scale.set(0.4,0.4,0.4)
+bush3.position.set(-0.8,0.1,2.2)
+
+const bush4 = new THREE.Mesh(bushGeometry,bushMaterial)
+bush4.scale.set(0.15,0.15,0.15)
+bush4.position.set(-1,0.05,2.6)
+
+house.add(bush1,bush2,bush3,bush4)
+
+// Floor
+const floor = new THREE.Mesh(
+  new THREE.PlaneBufferGeometry(20, 20),
+  new THREE.MeshStandardMaterial({ color: "#a9c388" })
+);
+floor.rotation.x = -Math.PI * 0.5;
+floor.position.y = 0;
+scene.add(floor);
+
+/**
+ * Lights
+ */
+// Ambient light
+const ambientLight = new THREE.AmbientLight("#ffffff", 0.5);
+gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
+scene.add(ambientLight);
+
+// Directional light
+const moonLight = new THREE.DirectionalLight("#ffffff", 0.5);
+moonLight.position.set(4, 5, -2);
+gui.add(moonLight, "intensity").min(0).max(1).step(0.001);
+gui.add(moonLight.position, "x").min(-5).max(5).step(0.001);
+gui.add(moonLight.position, "y").min(-5).max(5).step(0.001);
+gui.add(moonLight.position, "z").min(-5).max(5).step(0.001);
+scene.add(moonLight);
+
+/**
+ * Sizes
+ */
 const sizes = {
-  width: 800,
-  height: 600,
+  width: window.innerWidth,
+  height: window.innerHeight,
 };
 
+window.addEventListener("resize", () => {
+  // Update sizes
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
 
-const cursor = {
-  x: 0,
-  y: 0
-}
+  // Update camera
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix(); // question 2
 
-window.addEventListener('mousemove', (event) =>
-{
-    cursor.x = event.clientX / sizes.width - 0.5
-    cursor.y = -(event.clientY / sizes.height - 0.5)
-})
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
 
-const aspectRatio = sizes.width / sizes.height;
-
-// Object
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const mesh = new THREE.Mesh(geometry, material);
-
-// mesh.position.set(2,2)
-// mesh.rotation.x = Math.PI * 0.25
-// mesh.rotation.y = Math.PI * 0.25
-
-scene.add(mesh);
-
-// Camera
-const camera = new THREE.PerspectiveCamera(75, aspectRatio, 1, 1000);
-camera.position.set(0, 0, 5);
-
+/**
+ * Camera
+ */
+// Base camera
+const camera = new THREE.PerspectiveCamera(
+  75,
+  sizes.width / sizes.height,
+  0.1,
+  100
+); //question 1
+camera.position.z = 15;
+camera.position.x = 5;
+camera.position.y = 5;
 scene.add(camera);
+// why I cant see the floor when I rotate
+// Controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
 
-// Renderer
+/**
+ * Renderer
+ */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
 });
-
 renderer.setSize(sizes.width, sizes.height);
-renderer.render(scene, camera);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-//  Animate
-
-// const clock = new THREE.Clock()
-
-const controls = new OrbitControls(camera, canvas)
-// controls.target.y = 1
-controls.enableDamping = true
+/**
+ * Animate
+ */
+const clock = new THREE.Clock();
 
 const tick = () => {
-  // const elapsedTime = clock.getElapsedTime()
-  // mesh.position.x = Math.cos(elapsedTime*5)
-  // mesh.position.y = Math.sin(elapsedTime*5)
-  
-    // camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 2
-    // camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 2
-    // camera.position.y = cursor.y * 3
+  const elapsedTime = clock.getElapsedTime();
 
-  // camera.lookAt(mesh.position)
-  controls.update()
+  // Update controls
+  controls.update();
+
+  // Render
   renderer.render(scene, camera);
+
+  // Call tick again on the next frame
   window.requestAnimationFrame(tick);
 };
 
 tick();
-
-// Cursor
-
-
